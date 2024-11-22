@@ -1,0 +1,29 @@
+{
+  "name": "coproto",
+  "version": "0.0.1",
+  "description": "Protocol definitions to copo-protocol",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/belqlabs/coproto.git"
+  },
+  "keywords": [
+    "protocol",
+    "copo",
+    "parser",
+    "datagram"
+  ],
+  "author": "Augusto Sigolo",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/belqlabs/coproto/issues"
+  },
+  "homepage": "https://github.com/belqlabs/coproto#readme",
+  "devDependencies": {
+    "@types/node": "^22.9.1",
+    "typescript": "^5.6.3"
+  }
+}
