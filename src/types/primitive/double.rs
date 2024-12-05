@@ -2,7 +2,7 @@ use crate::commom::{
     delimiters::{BUFFER_END, END_RECORD, START_RECORD},
     errors::{
         decoding_error, encoding_error, DecodingError, DecodingErrors, EncodingError,
-        EncodingErrors, TypeError, TypeResult,
+        EncodingErrors, TypeResult,
     },
     join_parts, slice_records, to_ascii_code, BuffPart, CoprotoType, Uint8Buff,
 };

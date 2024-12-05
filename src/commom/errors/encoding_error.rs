@@ -7,6 +7,7 @@ pub enum EncodingErrors {
     InvalidValue(String),
     SizeConversionError(String, String),
     InternalError(Box<dyn Error>),
+    TableMisfit(usize, usize), // Headers length, Row length
 }
 
 impl fmt::Display for EncodingErrors {
@@ -21,6 +22,9 @@ impl fmt::Display for EncodingErrors {
                 format!("{} could not be converted to {}.", from, to)
             }
             EncodingErrors::InternalError(error) => error.to_string(),
+            EncodingErrors::TableMisfit(hl, rl) => {
+                format!("Cant fit {} records in {} headers", rl, hl)
+            }
         };
 
         write!(f, "{}", err_str)

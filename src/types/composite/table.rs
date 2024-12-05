@@ -1,13 +1,13 @@
 use crate::{
     commom::{
-        delimiters::{BUFFER_END, END_RECORD, START_RECORD, VALUE_DELIMITER},
+        delimiters::{END_RECORD, START_RECORD, VALUE_DELIMITER},
         errors::{
             decoding_error, encoding_error, DecodingError, DecodingErrors, EncodingError,
             EncodingErrors, TypeResult,
         },
-        join_parts, slice_records, split_values, BuffPart, CoprotoType, Uint8Buff, ValueOrBuffer,
+        join_parts, slice_records, BuffPart, CoprotoType, Uint8Buff, ValueOrBuffer,
     },
-    types::{infer_buffer, primitive, BigInt, Boolean, Double, Integer, Null, SupportedTypes},
+    types::{infer_buffer, BigInt, Boolean, Double, Integer, Null, SupportedTypes},
 };
 
 #[derive(Debug)]
@@ -24,7 +24,24 @@ impl CoprotoType<(Vec<String>, Vec<Vec<SupportedTypes>>)> for Table {
     const FIRST_BYTE: u8 = b'{';
 
     fn new(value: ValueOrBuffer<(Vec<String>, Vec<Vec<SupportedTypes>>)>) -> Self {
-        todo!()
+        match value {
+            ValueOrBuffer::Value(v) => Self {
+                first_byte: Self::FIRST_BYTE,
+                modifier_byte: None,
+                modifier_char: None,
+                first_char: '{',
+                value_of: Ok(v.clone()),
+                buff: Self::encode(v),
+            },
+            ValueOrBuffer::Buffer(vec) => Self {
+                first_byte: Self::FIRST_BYTE,
+                modifier_byte: None,
+                modifier_char: None,
+                first_char: '{',
+                value_of: Self::decode(vec.clone()),
+                buff: Ok(vec),
+            },
+        }
     }
 
     fn encode(value: (Vec<String>, Vec<Vec<SupportedTypes>>)) -> TypeResult<Uint8Buff> {
@@ -63,7 +80,7 @@ impl CoprotoType<(Vec<String>, Vec<Vec<SupportedTypes>>)> for Table {
                 return Err(encoding_error(EncodingError::new(
                     "(Vec<String>, Vec<Vec<SupportedTypes>>)",
                     "Table",
-                    EncodingErrors::DecodedWouldOverflow,
+                    EncodingErrors::TableMisfit(headers.len(), row.len()),
                 )));
             }
 
@@ -231,7 +248,10 @@ impl CoprotoType<(Vec<String>, Vec<Vec<SupportedTypes>>)> for Table {
 
 #[cfg(test)]
 mod tests {
-    use crate::{commom::CoprotoType, types::SupportedTypes};
+    use crate::{
+        commom::{CoprotoType, ValueOrBuffer},
+        types::SupportedTypes,
+    };
 
     use super::Table;
 
@@ -245,12 +265,65 @@ mod tests {
             ]],
         );
 
-        let encoded = Table::encode(original_table.clone()).unwrap();
+        let encoded = Table::new(ValueOrBuffer::Value(original_table.clone()));
 
         println!("Encoded:\n{:?}", encoded);
 
-        let decoded = Table::decode(encoded).unwrap();
+        let buff = encoded.buff.unwrap();
 
-        assert_eq!(original_table, decoded)
+        let decoded = Table::new(ValueOrBuffer::Buffer(buff.clone()));
+
+        assert_eq!(original_table, decoded.value_of.unwrap());
+
+        assert_eq!(buff.clone(), decoded.buff.unwrap());
+    }
+
+    #[test]
+    fn more_headers_than_records() {
+        let table_to_encode = (
+            vec!["Teste1".to_string(), "Teste1".to_string()],
+            vec![vec![SupportedTypes::Boolean(false)]],
+        );
+
+        let err = match Table::encode(table_to_encode) {
+            Ok(_) => false,
+            Err(e) => match e {
+                crate::commom::errors::TypeError::Encoding(encoding_error) => {
+                    matches!(
+                        encoding_error.origin,
+                        crate::commom::errors::EncodingErrors::TableMisfit(_, _)
+                    )
+                }
+                crate::commom::errors::TypeError::Decoding(_) => false,
+            },
+        };
+
+        assert!(err);
+    }
+
+    #[test]
+    fn more_records_than_headers() {
+        let table_to_encode = (
+            vec!["Teste1".to_string()],
+            vec![vec![
+                SupportedTypes::Boolean(false),
+                SupportedTypes::Boolean(false),
+            ]],
+        );
+
+        let err = match Table::encode(table_to_encode) {
+            Ok(_) => false,
+            Err(e) => match e {
+                crate::commom::errors::TypeError::Encoding(encoding_error) => {
+                    matches!(
+                        encoding_error.origin,
+                        crate::commom::errors::EncodingErrors::TableMisfit(_, _)
+                    )
+                }
+                crate::commom::errors::TypeError::Decoding(_) => false,
+            },
+        };
+
+        assert!(err);
     }
 }

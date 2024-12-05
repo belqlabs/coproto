@@ -2,7 +2,7 @@ use crate::{
     commom::{
         delimiters::{BUFFER_END, END_RECORD, START_RECORD, VALUE_DELIMITER},
         errors::{decoding_error, DecodingError, DecodingErrors, TypeResult},
-        join_parts, slice_records, split_values, BuffPart, CoprotoType, Uint8Buff, ValueOrBuffer,
+        join_parts, slice_records, BuffPart, CoprotoType, Uint8Buff, ValueOrBuffer,
     },
     types::{infer_buffer, primitive, BigInt, Boolean, Double, Integer, Null, SupportedTypes},
 };

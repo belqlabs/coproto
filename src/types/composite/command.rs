@@ -4,7 +4,7 @@ use crate::{
         errors::{decoding_error, DecodingError, DecodingErrors, TypeResult},
         join_parts, slice_records, split_values, BuffPart, CoprotoType, Uint8Buff, ValueOrBuffer,
     },
-    types::{infer_buffer, primitive, BigInt, Boolean, Double, Integer, Null, SupportedTypes},
+    types::{infer_buffer, SupportedTypes},
 };
 
 #[derive(Debug)]
