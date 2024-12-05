@@ -20,10 +20,11 @@ pub struct BigInt {
 }
 
 impl CoprotoType<i64> for BigInt {
+    const FIRST_BYTE: u8 = b'(';
     fn new(value: ValueOrBuffer<i64>) -> Self {
         match value {
             ValueOrBuffer::Value(value) => Self {
-                first_byte: b'(',
+                first_byte: Self::FIRST_BYTE,
                 first_char: '(',
                 modifier_byte: Some(if value < 0 { b'-' } else { b'+' }),
                 modifier_char: Some(if value < 0 { '-' } else { '+' }),

@@ -17,6 +17,7 @@ pub struct Null {
 }
 
 impl CoprotoType<Option<()>> for Null {
+    const FIRST_BYTE: u8 = b'-';
     fn new(value: crate::commom::ValueOrBuffer<Option<()>>) -> Self {
         match value {
             crate::commom::ValueOrBuffer::Value(v) => Self {
@@ -86,15 +87,17 @@ impl CoprotoType<Option<()>> for Null {
             )));
         };
 
-        if records.first().is_some() {
-            return Err(decoding_error(DecodingError::new(
-                value.clone(),
-                "Null",
-                DecodingErrors::TooMuch("Bytes".to_string(), 0, 1),
-            )));
-        };
-
-        Ok(None)
+        match records.first() {
+            Some(v) => match v.is_empty() {
+                true => Ok(None),
+                false => Err(decoding_error(DecodingError::new(
+                    value.clone(),
+                    "Null",
+                    DecodingErrors::TooMuch("Bytes".to_string(), 0, v.len().try_into().unwrap()),
+                ))),
+            },
+            None => Ok(None),
+        }
     }
 }
 

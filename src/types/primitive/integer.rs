@@ -20,6 +20,7 @@ pub struct Integer {
 }
 
 impl CoprotoType<i32> for Integer {
+    const FIRST_BYTE: u8 = b':';
     fn new(value: ValueOrBuffer<i32>) -> Self {
         match value {
             ValueOrBuffer::Value(value) => Self {
@@ -108,11 +109,15 @@ impl CoprotoType<i32> for Integer {
 
         let first_byte = m_value.remove(0);
 
-        if first_byte != b':' {
+        if first_byte != Self::FIRST_BYTE {
             return Err(decoding_error(DecodingError {
                 from: value,
                 to: "Integer".to_string(),
-                cause: DecodingErrors::FirstByteError("Integer".to_string(), b':', first_byte),
+                cause: DecodingErrors::FirstByteError(
+                    "Integer".to_string(),
+                    Self::FIRST_BYTE,
+                    first_byte,
+                ),
             }));
         };
 

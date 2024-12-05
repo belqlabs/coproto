@@ -15,6 +15,7 @@ pub struct Boolean {
 }
 
 impl CoprotoType<bool> for Boolean {
+    const FIRST_BYTE: u8 = b'#';
     fn new(value: crate::commom::ValueOrBuffer<bool>) -> Self {
         match value {
             crate::commom::ValueOrBuffer::Value(v) => Self {

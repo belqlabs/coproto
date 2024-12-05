@@ -18,6 +18,7 @@ pub struct Double {
 }
 
 impl CoprotoType<f64> for Double {
+    const FIRST_BYTE: u8 = b';';
     fn new(value: crate::commom::ValueOrBuffer<f64>) -> Self {
         match value {
             crate::commom::ValueOrBuffer::Value(value) => Self {

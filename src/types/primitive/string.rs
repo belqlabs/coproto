@@ -15,21 +15,22 @@ pub struct String {
 }
 
 impl CoprotoType<std::string::String> for String {
+    const FIRST_BYTE: u8 = b'+';
     fn new(value: crate::commom::ValueOrBuffer<std::string::String>) -> Self {
         match value {
             crate::commom::ValueOrBuffer::Value(v) => Self {
-                first_byte: b'-',
+                first_byte: b'+',
                 modifier_byte: None,
                 modifier_char: None,
-                first_char: '-',
+                first_char: '+',
                 value_of: Ok(v.clone()),
                 buff: Self::encode(v),
             },
             crate::commom::ValueOrBuffer::Buffer(vec) => Self {
-                first_byte: b'-',
+                first_byte: b'+',
                 modifier_byte: None,
                 modifier_char: None,
-                first_char: '-',
+                first_char: '+',
                 value_of: Self::decode(vec.clone()),
                 buff: Ok(vec),
             },

@@ -9,7 +9,10 @@ pub enum DecodingErrors {
     CouldNotFind(u8, String),       // (byte, byte_name)
     FirstByteError(String, u8, u8), // (found, expected)
     SizeConversionError(String, String),
+    UnknownFirstByte(u8, Vec<u8>), // (found, expected)
     InternalError(Box<dyn Error>),
+    InvalidTypeInCompositeType(String, String), // (found, expected)
+    CantFitValues(String),                      // Just an explanation
 }
 
 impl fmt::Display for DecodingErrors {
@@ -38,6 +41,19 @@ impl fmt::Display for DecodingErrors {
                 format!("{} could not be converted to {}.", from, to)
             }
             DecodingErrors::InternalError(error) => error.to_string(),
+            DecodingErrors::UnknownFirstByte(byte, vec) => {
+                format!(
+                    "{} is not a known first byte. Valid first bytes are: {:?}",
+                    byte, vec
+                )
+            }
+            DecodingErrors::InvalidTypeInCompositeType(found, expected) => {
+                format!(
+                    "this composite type only accepts {}. Found {}",
+                    expected, found
+                )
+            }
+            DecodingErrors::CantFitValues(str) => str.to_string(),
         };
 
         write!(f, "{}", err_str)
